@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Tendencias ISCR - Corteva Berazategui</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: #1a3a5f; font-size: 24px; margin-bottom: 5px; }
+    h2 { color: #1a3a5f; font-size: 18px; margin-bottom: 15px; }
+    h3 { color: #1a3a5f; font-size: 14px; margin-bottom: 10px; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .version-badge { background: #28a745; color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 10px; margin-left: 10px; }
+    .grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .btn-group { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+    .btn { padding: 8px 14px; border: 2px solid #e0e0e0; background: #fff; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+    .btn:hover { border-color: #1a3a5f; }
+    .btn.active { background: #1a3a5f; color: #fff; border-color: #1a3a5f; }
+    .btn.active-orange { background: #e67e22; color: #fff; border-color: #e67e22; }
+    .btn-label { font-weight: 600; }
+    .btn-sub { font-size: 10px; opacity: 0.8; margin-top: 2px; }
+    .section-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+    .mode-toggle { display: inline-flex; border-radius: 8px; overflow: hidden; border: 2px solid #e0e0e0; }
+    .mode-toggle .btn { border: none; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    th { font-weight: 600; color: #666; background: #fafafa; }
+    td.right, th.right { text-align: right; }
+    td.center, th.center { text-align: center; }
+    .trend-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .trend-down { background: #d4edda; color: #155724; }
+    .trend-up { background: #f8d7da; color: #721c24; }
+    .trend-stable { background: #fff3cd; color: #856404; }
+    .trend-na { background: #e9ecef; color: #6c757d; }
+    .trend-detnd { background: #d4edda; color: #155724; }
+    .value-exceed { color: #dc3545; font-weight: 600; }
+    .value-ok { color: #28a745; }
+    .geochem-box { background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+    .geochem-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+    .geochem-label { font-weight: 600; font-size: 13px; }
+    .geochem-criteria { font-size: 10px; color: #666; }
+    .geochem-values { display: flex; justify-content: space-around; text-align: center; }
+    .geochem-event { font-size: 10px; color: #999; margin-bottom: 4px; }
+    .geochem-value { font-size: 16px; font-weight: 700; }
+    .geochem-value.fuert-reductor { color: #155724; }
+    .geochem-value.reductor { color: #28a745; }
+    .geochem-value.lev-reductor { color: #5cb85c; }
+    .geochem-value.transicion { color: #f0ad4e; }
+    .geochem-value.oxidante { color: #dc3545; }
+    .geochem-class { font-size: 9px; margin-top: 2px; padding: 2px 6px; border-radius: 3px; display: inline-block; }
+    .geochem-class.fuert-reductor { background: #d4edda; color: #155724; }
+    .geochem-class.reductor { background: #d4edda; color: #155724; }
+    .geochem-class.lev-reductor { background: #e8f5e9; color: #2e7d32; }
+    .geochem-class.transicion { background: #fff3cd; color: #856404; }
+    .geochem-class.oxidante { background: #f8d7da; color: #721c24; }
+    .warning-box { background: #fff3cd; color: #856404; padding: 10px; border-radius: 6px; font-size: 11px; margin-top: 10px; }
+    .success-box { background: #d4edda; color: #155724; padding: 10px; border-radius: 6px; font-size: 11px; margin-top: 10px; }
+    .info-box { background: linear-gradient(135deg, #e3f2fd, #bbdefb); padding: 15px; border-radius: 10px; border: 1px solid #90caf9; }
+    .info-box h4 { color: #1565c0; font-size: 13px; margin-bottom: 10px; }
+    .info-box ul { margin: 0; padding-left: 20px; font-size: 12px; color: #1565c0; line-height: 1.8; }
+    .chart-container { height: 300px; position: relative; }
+    .well-tag { display: inline-block; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; margin-top: 8px; }
+    .well-tag.barrera { background: #e3f2fd; color: #1565c0; }
+    .well-tag.conv { background: #fff3e0; color: #e65100; }
+    .summary-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; }
+    .summary-label { font-size: 13px; font-weight: 500; }
+    .summary-value { font-size: 20px; font-weight: 800; }
+    .summary-down { background: #d4edda; color: #155724; }
+    .summary-up { background: #f8d7da; color: #721c24; }
+    .summary-stable { background: #fff3cd; color: #856404; }
+    .summary-na { background: #e9ecef; color: #6c757d; }
+    .orp-legend { font-size: 10px; color: #666; margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 6px; }
+    .orp-legend-item { display: flex; align-items: center; gap: 5px; margin: 3px 0; }
+    .orp-legend-color { width: 12px; height: 12px; border-radius: 2px; }
+    .footer { text-align: center; padding: 20px; margin-top: 20px; background: #fff; border-radius: 12px; }
+    .footer-main { font-size: 12px; color: #666; margin-bottom: 8px; }
+    .footer-author { font-size: 11px; color: #1a3a5f; font-weight: 600; padding-top: 10px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div>
+          <h1>📊 Dashboard de Tendencias ISCR <span class="version-badge">v3.1</span></h1>
+          <p class="subtitle">Corteva Berazategui • DISPO-2024-881-GDEBA • Marzo 2026 • Conforme PO ISCR-001 v3.1</p>
+        </div>
+        <div class="mode-toggle">
+          <button class="btn active" id="btn-well" onclick="setMode('well')">Por Pozo</button>
+          <button class="btn" id="btn-compound" onclick="setMode('compound')">Por Compuesto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selector -->
+    <div class="card" id="selector-card"></div>
+
+    <!-- Main Content -->
+    <div class="grid">
+      <!-- Chart -->
+      <div class="card">
+        <div id="chart-title"></div>
+        <div class="chart-container">
+          <canvas id="mainChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Side Panel -->
+      <div id="side-panel"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-main">Corteva Berazategui • DISPO-2024-881-GDEBA • PO ISCR-001 v3.1 • ESTCP ER-201427 • Marzo 2026</div>
+      <div class="footer-author">Desarrollado por <span style="color: #2980b9;">Enrique Garcia Baumgartner</span> — <em>WeTTo</em></div>
+    </div>
+  </div>
+
+  <script>
+    // DATA - Actualizado según Excel corregido
+    var DATA = {
+      events: ["LB", "T1", "T2"],
+      eventLabels: ["Sep-2024", "Ago/Sep-2025", "Oct-2025"],
+      compounds: [
+        { id: "CT", name: "Tetracloruro de Carbono", ng: 3, role: "Padre", color: "#1e3a5f" },
+        { id: "CF", name: "Cloroformo", ng: 30, role: "Hijo", color: "#3498db" },
+        { id: "PCE", name: "Tetracloroetileno", ng: 10, role: "Padre", color: "#e74c3c" },
+        { id: "TCE", name: "Tricloroetileno", ng: 30, role: "Hijo", color: "#e67e22" },
+        { id: "DCE", name: "1,1-Dicloroetileno", ng: 0.3, role: "Hijo", color: "#f1c40f" },
+        { id: "CFC11", name: "CFC-11", ng: 2, role: "Padre", color: "#27ae60" },
+        { id: "CFC12", name: "CFC-12", ng: 2, role: "Padre", color: "#9b59b6" }
+      ],
+      wells: {
+        "aPIMW01s": { type: "Barrera", CT: [98.7, 182, 129], CF: [40.6, 118, 100], PCE: [null, null, 2.8], TCE: [null, 1, null], DCE: [null, null, null], CFC11: [1, 1, 1], CFC12: [null, null, null], ORP: [104.2, 25.3, 123.4], pH: [7.14, 7.01, 6.93] },
+        "aPIMW02p": { type: "Barrera", CT: [1185, 99.8, 187], CF: [307, 124, 127], PCE: [null, null, null], TCE: [1, null, null], DCE: [0.4, null, null], CFC11: [31.4, 2.6, 2.2], CFC12: [3.9, 1.2, 1], ORP: [120.4, -94.7, 42.0], pH: [7.14, 7.11, 6.66] },
+        "aPIMW02s": { type: "Barrera", CT: [3392, 2125, 2071], CF: [975, 782, 879], PCE: [null, 11.9, 14.2], TCE: [1, 1, null], DCE: [0.6, 0.5, 0.4], CFC11: [9.8, 3.9, 2.7], CFC12: [1, null, null], ORP: [96.1, 22.5, 154.0], pH: [7.25, 7.12, 6.53] },
+        "aPIMW03p": { type: "Barrera", CT: [52.6, 11.5, 22.5], CF: [13.8, 5.5, null], PCE: [null, null, null], TCE: [1, null, null], DCE: [0.3, 0.3, 0.3], CFC11: [3.1, 1.5, 1.7], CFC12: [2.1, 4.6, 2], ORP: [169.0, -52.6, 116.1], pH: [7.38, 7.16, 7.22] },
+        "aPIMW03s": { type: "Barrera", CT: [3627, 2416, 1384], CF: [990, 594, 318], PCE: [null, null, null], TCE: [null, 1, null], DCE: [0.8, 0.6, 0.3], CFC11: [68.4, 34.6, 13.9], CFC12: [4.5, 2.5, 1], ORP: [128.5, 40.0, 135.6], pH: [7.16, 6.96, 7.09] },
+        "aPIMW04p": { type: "Barrera", CT: [10.5, 7.8, 10.3], CF: [12.6, 11.0, 7.3], PCE: [null, null, null], TCE: [1, null, 1], DCE: [0.3, null, null], CFC11: [2.8, 2, 2.2], CFC12: [1.4, 1.5, 1.8], ORP: [125.7, -0.5, 58.6], pH: [7.26, 7.14, 7.56] },
+        "aPIMW04s": { type: "Barrera", CT: [90.1, 4.5, 1.0], CF: [35.0, 5.4, null], PCE: [null, null, null], TCE: [1, 1, null], DCE: [0.4, 0.3, null], CFC11: [6.7, 1, null], CFC12: [1, 1, null], ORP: [239.8, -106.1, -52.9], pH: [7.25, 7.10, 7.41] },
+        "aPIMW05p": { type: "Barrera", CT: [221, 39.7, 24.3], CF: [134, 21.3, 12.8], PCE: [null, null, null], TCE: [1, 1, 1], DCE: [1.1, 0.4, 0.3], CFC11: [34, 6.7, 5.3], CFC12: [5.9, 3.7, 3.6], ORP: [106.9, -40.5, -14.0], pH: [7.17, 7.15, 7.25] },
+        "aPIMW05s": { type: "Barrera", CT: [471, 227, 224], CF: [233, 114, 154], PCE: [null, null, null], TCE: [1, 1, 1], DCE: [2.2, 1.1, 1.2], CFC11: [91.3, 44.7, 61.6], CFC12: [10.1, 10.1, 14.1], ORP: [null, 2.4, 16.2], pH: [null, 7.15, 7.27] },
+        "D17": { type: "Convencional", CT: [null, null, null], CF: [null, null, null], PCE: [null, null, null], TCE: [null, null, null], DCE: [null, null, null], CFC11: [null, null, null], CFC12: [0.4, null, null], ORP: [156.7, 40.8, 159.0], pH: [7.31, 7.21, 7.15] },
+        "D18": { type: "Convencional", CT: [2.0, 4.2, 5.5], CF: [7.0, 9.0, 10.5], PCE: [null, null, null], TCE: [1, null, null], DCE: [0.4, null, null], CFC11: [0.1, 0.2, 0.3], CFC12: [0.3, null, null], ORP: [268.6, 87.4, 185.0], pH: [7.14, 6.93, 6.60] },
+        "D20": { type: "Convencional", CT: [null, null, null], CF: [null, null, null], PCE: [null, null, null], TCE: [3.9, 3.2, 4.0], DCE: [0.4, null, null], CFC11: [null, null, null], CFC12: [0.3, null, null], ORP: [-117.1, 20.3, 104.6], pH: [6.43, 6.17, 6.16] },
+        "MW4": { type: "Convencional", CT: [27.7, null, 1.5], CF: [127, null, 5.0], PCE: [null, null, null], TCE: [1.5, null, 0.9], DCE: [1.2, null, 0.2], CFC11: [2.1, null, 0.4], CFC12: [0.5, null, 0.3], ORP: [195.5, null, 199.6], pH: [7.27, null, 6.91] },
+        "MW8": { type: "Convencional", CT: [3.2, null, 1.6], CF: [22.6, null, null], PCE: [null, null, null], TCE: [1, null, 1.5], DCE: [null, null, null], CFC11: [0.6, null, 0.2], CFC12: [0.2, null, null], ORP: [247.4, null, 180.6], pH: [7.17, null, 7.13] },
+        "MW11": { type: "Convencional", CT: [null, null, null], CF: [8.4, null, null], PCE: [null, null, null], TCE: [null, null, null], DCE: [2.6, 0.4, 0.2], CFC11: [2.1, 0.4, 0.4], CFC12: [1, 0.5, null], ORP: [90.3, 8.1, 173.6], pH: [7.13, 7.10, 6.96] },
+        "P03a": { type: "Convencional", CT: [null, null, null], CF: [null, null, null], PCE: [null, null, null], TCE: [3.6, 2.8, 3.8], DCE: [1.3, 1.2, 1.5], CFC11: [null, null, 0.2], CFC12: [null, 0.4, 0.3], ORP: [-127.9, -53.0, 151.5], pH: [6.02, 6.01, 5.80] },
+        "PZ2": { type: "Convencional", CT: [2.8, 2.2, 8.1], CF: [null, null, null], PCE: [null, null, 0.3], TCE: [1, null, null], DCE: [2.5, 0.5, null], CFC11: [null, null, null], CFC12: [0.3, null, null], ORP: [81.4, 22.5, 111.4], pH: [7.20, 7.10, 7.06] },
+        "PZ3": { type: "Convencional", CT: [9.9, 4.6, 33.3], CF: [10.7, null, 13.3], PCE: [null, null, 1.1], TCE: [null, null, 0.3], DCE: [1.1, null, 0.3], CFC11: [null, null, null], CFC12: [null, null, 0.5], ORP: [105.7, 25.5, 196.2], pH: [7.25, 7.13, 6.73] }
+      }
+    };
+
+    var currentMode = "well";
+    var currentWell = "aPIMW04s";
+    var currentCompound = "CT";
+    var chart = null;
+
+    // Clasificación ORP según PO v3.1 (5 niveles)
+    function clasificarORP(orp) {
+      if (orp === null) return { clase: "na", label: "S/D", css: "" };
+      if (orp < -200) return { clase: "fuert-reductor", label: "Fuert. Red.", css: "fuert-reductor" };
+      if (orp >= -200 && orp < -100) return { clase: "reductor", label: "Reductor", css: "reductor" };
+      if (orp >= -100 && orp < 0) return { clase: "lev-reductor", label: "Lev. Red.", css: "lev-reductor" };
+      if (orp >= 0 && orp < 100) return { clase: "transicion", label: "Transición", css: "transicion" };
+      return { clase: "oxidante", label: "Oxidante", css: "oxidante" };
+    }
+
+    // Cálculo de tendencia según PO v3.1
+    function calcTrend(values) {
+      var first = values[0];
+      var last = values[values.length - 1];
+      
+      // Caso: ambos ND
+      if (first === null && last === null) {
+        return { dir: "na", label: "ND→ND", pct: null };
+      }
+      
+      // Caso: ND → Detectado (aparición)
+      if (first === null && last !== null) {
+        return { dir: "up", label: "ND→Det", pct: null };
+      }
+      
+      // Caso: Detectado → ND (Det→ND) - CORRECCIÓN PO v3.1
+      if (first !== null && last === null) {
+        return { dir: "detnd", label: "Det→ND", pct: -100 };
+      }
+      
+      // Caso: ambos detectados
+      if (first === 0) return { dir: last > 0 ? "up" : "stable", label: last > 0 ? "↑" : "=", pct: null };
+      var pct = ((last - first) / first) * 100;
+      if (pct <= -20) return { dir: "down", label: pct.toFixed(0) + "%", pct: pct };
+      if (pct >= 20) return { dir: "up", label: "+" + pct.toFixed(0) + "%", pct: pct };
+      return { dir: "stable", label: (pct > 0 ? "+" : "") + pct.toFixed(0) + "%", pct: pct };
+    }
+
+    function formatVal(v) {
+      return v === null ? "ND" : v.toFixed(1);
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById("btn-well").className = mode === "well" ? "btn active" : "btn";
+      document.getElementById("btn-compound").className = mode === "compound" ? "btn active" : "btn";
+      renderSelector();
+      renderChart();
+      renderSidePanel();
+    }
+
+    function selectWell(id) {
+      currentWell = id;
+      renderSelector();
+      renderChart();
+      renderSidePanel();
+    }
+
+    function selectCompound(id) {
+      currentCompound = id;
+      renderSelector();
+      renderChart();
+      renderSidePanel();
+    }
+
+    function renderSelector() {
+      var html = "";
+      if (currentMode === "well") {
+        html += '<div class="section-label">Seleccionar Pozo</div>';
+        html += '<div style="display: flex; gap: 30px; flex-wrap: wrap;">';
+        
+        // Barrera
+        html += '<div><div style="font-size:11px; color:#1a3a5f; margin-bottom:8px; font-weight:600;">Pozos Barrera (9)</div><div class="btn-group">';
+        Object.keys(DATA.wells).forEach(function(id) {
+          if (DATA.wells[id].type === "Barrera") {
+            var trend = calcTrend(DATA.wells[id].CT);
+            var active = currentWell === id ? " active" : "";
+            html += '<button class="btn' + active + '" onclick="selectWell(\'' + id + '\')">';
+            html += '<div class="btn-label">' + id.replace("aPIMW", "") + '</div>';
+            html += '<div class="btn-sub">CT: ' + trend.label + '</div></button>';
+          }
+        });
+        html += '</div></div>';
+        
+        // Convencional
+        html += '<div><div style="font-size:11px; color:#e67e22; margin-bottom:8px; font-weight:600;">Convencionales (9)</div><div class="btn-group">';
+        Object.keys(DATA.wells).forEach(function(id) {
+          if (DATA.wells[id].type === "Convencional") {
+            var active = currentWell === id ? " active-orange" : "";
+            html += '<button class="btn' + active + '" onclick="selectWell(\'' + id + '\')">' + id + '</button>';
+          }
+        });
+        html += '</div></div>';
+        html += '</div>';
+      } else {
+        html += '<div class="section-label">Seleccionar Compuesto</div>';
+        html += '<div class="btn-group">';
+        DATA.compounds.forEach(function(c) {
+          var stats = getCompoundStats(c.id);
+          var active = currentCompound === c.id ? " active" : "";
+          html += '<button class="btn' + active + '" style="' + (currentCompound === c.id ? 'background:' + c.color + ';border-color:' + c.color : '') + '" onclick="selectCompound(\'' + c.id + '\')">';
+          html += '<div class="btn-label">' + c.id + '</div>';
+          html += '<div class="btn-sub">NG: ' + c.ng + ' µg/L</div>';
+          html += '<div class="btn-sub">↓' + stats.down + ' ↑' + stats.up + ' =' + stats.stable + '</div></button>';
+        });
+        html += '</div>';
+      }
+      document.getElementById("selector-card").innerHTML = html;
+    }
+
+    function getCompoundStats(compId) {
+      var down = 0, up = 0, stable = 0, na = 0;
+      Object.keys(DATA.wells).forEach(function(wid) {
+        if (DATA.wells[wid].type === "Barrera") {
+          var trend = calcTrend(DATA.wells[wid][compId]);
+          if (trend.dir === "down" || trend.dir === "detnd") down++;
+          else if (trend.dir === "up") up++;
+          else if (trend.dir === "stable") stable++;
+          else na++;
+        }
+      });
+      return { down: down, up: up, stable: stable, na: na };
+    }
+
+    function renderChart() {
+      var titleEl = document.getElementById("chart-title");
+      var ctx = document.getElementById("mainChart").getContext("2d");
+      
+      if (chart) chart.destroy();
+      
+      if (currentMode === "well") {
+        var well = DATA.wells[currentWell];
+        titleEl.innerHTML = '<h2>' + currentWell + '</h2><span class="well-tag ' + (well.type === "Barrera" ? "barrera" : "conv") + '">' + well.type + '</span>';
+        
+        var datasets = [];
+        DATA.compounds.slice(0, 4).forEach(function(c) {
+          datasets.push({
+            label: c.id,
+            data: well[c.id],
+            borderColor: c.color,
+            backgroundColor: c.color + "33",
+            borderWidth: 3,
+            pointRadius: 6,
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 2,
+            tension: 0.1,
+            spanGaps: false
+          });
+        });
+        
+        chart = new Chart(ctx, {
+          type: "line",
+          data: { labels: DATA.eventLabels, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: "bottom" } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: "µg/L" } } }
+          }
+        });
+      } else {
+        var comp = DATA.compounds.find(function(c) { return c.id === currentCompound; });
+        titleEl.innerHTML = '<h2>' + comp.name + '</h2><div style="font-size:13px;color:#666;margin-top:5px;">Nivel Guía: ' + comp.ng + ' µg/L • Rol: ' + comp.role + '</div>';
+        
+        var labels = [];
+        var values = [];
+        var colors = [];
+        Object.keys(DATA.wells).forEach(function(wid) {
+          if (DATA.wells[wid].type === "Barrera") {
+            var trend = calcTrend(DATA.wells[wid][currentCompound]);
+            labels.push(wid.replace("aPIMW", ""));
+            values.push(trend.pct);
+            colors.push((trend.dir === "down" || trend.dir === "detnd") ? "#28a745" : trend.dir === "up" ? "#dc3545" : "#ffc107");
+          }
+        });
+        
+        chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "% Cambio LB→T2",
+              data: values,
+              backgroundColor: colors,
+              borderRadius: 6
+            }]
+          },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { title: { display: true, text: "% Cambio" } } }
+          }
+        });
+      }
+    }
+
+    function renderSidePanel() {
+      var html = "";
+      
+      if (currentMode === "well") {
+        var well = DATA.wells[currentWell];
+        
+        // Table
+        html += '<div class="card"><h3>Concentraciones</h3><table>';
+        html += '<tr><th>Comp.</th><th class="right">LB</th><th class="right">T1</th><th class="right">T2</th><th class="center">Cambio</th></tr>';
+        DATA.compounds.forEach(function(c) {
+          var vals = well[c.id];
+          var trend = calcTrend(vals);
+          var trendClass = "trend-" + (trend.dir === "detnd" ? "down" : trend.dir);
+          html += '<tr>';
+          html += '<td><span style="color:' + c.color + '">●</span> ' + c.id + '</td>';
+          html += '<td class="right">' + formatVal(vals[0]) + '</td>';
+          html += '<td class="right">' + formatVal(vals[1]) + '</td>';
+          html += '<td class="right">' + formatVal(vals[2]) + '</td>';
+          html += '<td class="center"><span class="trend-badge ' + trendClass + '">' + trend.label + '</span></td>';
+          html += '</tr>';
+        });
+        html += '</table></div>';
+        
+        // Geochemistry - ACTUALIZADO según PO v3.1
+        html += '<div class="card"><h3>Validación Geoquímica (PO v3.1)</h3>';
+        
+        // ORP con clasificación de 5 niveles
+        html += '<div class="geochem-box"><div class="geochem-header"><span class="geochem-label">ORP (mV)</span><span class="geochem-criteria">Umbral operativo: < -100 mV</span></div>';
+        html += '<div class="geochem-values">';
+        DATA.events.forEach(function(e, i) {
+          var v = well.ORP[i];
+          var clasif = clasificarORP(v);
+          html += '<div><div class="geochem-event">' + e + '</div>';
+          html += '<div class="geochem-value ' + clasif.css + '">' + formatVal(v) + '</div>';
+          html += '<div class="geochem-class ' + clasif.css + '">' + clasif.label + '</div></div>';
+        });
+        html += '</div></div>';
+        
+        // pH
+        html += '<div class="geochem-box"><div class="geochem-header"><span class="geochem-label">pH</span><span class="geochem-criteria">Esperable: neutro a lev. alcalino</span></div>';
+        html += '<div class="geochem-values">';
+        DATA.events.forEach(function(e, i) {
+          var v = well.pH[i];
+          html += '<div><div class="geochem-event">' + e + '</div><div class="geochem-value">' + (v !== null ? v.toFixed(2) : "ND") + '</div></div>';
+        });
+        html += '</div></div>';
+        
+        // Leyenda ORP
+        html += '<div class="orp-legend"><strong>Clasificación ORP (PO v3.1):</strong>';
+        html += '<div class="orp-legend-item"><div class="orp-legend-color" style="background:#155724"></div>&lt; -200 mV: Fuert. Reductor (óptimo)</div>';
+        html += '<div class="orp-legend-item"><div class="orp-legend-color" style="background:#28a745"></div>-200 a -100 mV: Reductor</div>';
+        html += '<div class="orp-legend-item"><div class="orp-legend-color" style="background:#5cb85c"></div>-100 a 0 mV: Lev. Reductor</div>';
+        html += '<div class="orp-legend-item"><div class="orp-legend-color" style="background:#f0ad4e"></div>0 a +100 mV: Transición</div>';
+        html += '<div class="orp-legend-item"><div class="orp-legend-color" style="background:#dc3545"></div>&gt; +100 mV: Oxidante</div>';
+        html += '</div>';
+        
+        // Mensaje contextual según el pozo
+        var orpT1 = well.ORP[1];
+        var orpT2 = well.ORP[2];
+        if (orpT2 !== null && orpT2 < 0) {
+          html += '<div class="success-box">✓ Este pozo mantiene condiciones reductoras (ORP negativo), favorables para la degradación del ZVI.</div>';
+        } else if (orpT1 !== null && orpT1 < 0 && orpT2 !== null && orpT2 > 0) {
+          html += '<div class="warning-box">⚠️ El ORP bajó en T1 pero rebotó en T2. Monitorear la capacidad reductora del ZVI en próximos trimestres.</div>';
+        } else if (orpT2 !== null && orpT2 > 100) {
+          html += '<div class="warning-box">⚠️ Condiciones oxidantes. El ZVI puede tener capacidad reductora limitada en esta zona.</div>';
+        }
+        
+        html += '</div>';
+        
+      } else {
+        // Compound summary
+        var stats = getCompoundStats(currentCompound);
+        html += '<div class="card"><h3>Resumen Pozos Barrera</h3>';
+        html += '<div class="summary-item summary-down"><span class="summary-label">↓ Mejorando (incl. Det→ND)</span><span class="summary-value">' + stats.down + '</span></div>';
+        html += '<div class="summary-item summary-stable"><span class="summary-label">= Estable (±20%)</span><span class="summary-value">' + stats.stable + '</span></div>';
+        html += '<div class="summary-item summary-up"><span class="summary-label">↑ Empeorando (>20% aum.)</span><span class="summary-value">' + stats.up + '</span></div>';
+        html += '<div class="summary-item summary-na"><span class="summary-label">Sin datos / ND→ND</span><span class="summary-value">' + stats.na + '</span></div>';
+        html += '</div>';
+        
+        // Info
+        html += '<div class="info-box"><h4>ℹ️ Información (PO v3.1)</h4><ul>';
+        html += '<li><strong>n = 3</strong> eventos de muestreo</li>';
+        html += '<li>Test Spearman: requiere n ≥ 4</li>';
+        html += '<li>NG: Decreto 831/93 Tabla 1</li>';
+        html += '<li><strong>Det→ND</strong>: Detectado pasó a No Detectado</li>';
+        html += '<li>ND tratado como 0 para masa molar</li>';
+        html += '</ul></div>';
+      }
+      
+      document.getElementById("side-panel").innerHTML = html;
+    }
+
+    // Init
+    renderSelector();
+    renderChart();
+    renderSidePanel();
+  </script>
+</body>
+</html>
