@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análisis Espacial ISCR - Corteva Berazategui</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; padding: 20px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: #1a3a5f; font-size: 24px; margin-bottom: 5px; }
+    h2 { color: #1a3a5f; font-size: 18px; margin-bottom: 15px; }
+    .subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+    .map-container { height: 600px; border-radius: 8px; overflow: hidden; position: relative; background: #e8f4f8; }
+    .map-svg { width: 100%; height: 100%; }
+    .legend { font-size: 11px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+    .legend-color { width: 16px; height: 16px; border-radius: 4px; }
+    .legend-line { width: 20px; height: 3px; }
+    .finding { padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
+    .finding-critical { background: #f8d7da; border-left: 4px solid #dc3545; }
+    .finding-success { background: #d4edda; border-left: 4px solid #28a745; }
+    .finding-info { background: #e7f3ff; border-left: 4px solid #007bff; }
+    .finding h4 { margin-bottom: 6px; font-size: 13px; }
+    .data-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-top: 10px; }
+    .data-table th, .data-table td { padding: 6px 8px; border-bottom: 1px solid #eee; text-align: left; }
+    .data-table th { background: #f8f9fa; font-weight: 600; }
+    .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .tooltip { position: absolute; background: rgba(0,0,0,0.85); color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 11px; pointer-events: none; z-index: 100; max-width: 200px; }
+    .flow-arrow { font-size: 24px; color: #3498db; }
+    .section-title { font-size: 13px; font-weight: 600; color: #1a3a5f; margin: 15px 0 10px 0; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>🗺️ Análisis Espacial - Caso aPIMW01s</h1>
+      <p class="subtitle">Corteva Berazategui • Relación entre posición de pozos, barreras ZVI y concentraciones</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Mapa del Sitio (Vista en Planta)</h2>
+        <div class="map-container" id="mapContainer">
+          <svg class="map-svg" viewBox="0 0 700 600" id="mapSvg">
+            <!-- Definiciones -->
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="#3498db"/>
+              </marker>
+              <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            
+            <!-- Fondo con grilla -->
+            <rect width="700" height="600" fill="url(#gridPattern)"/>
+            
+            <!-- Título Norte -->
+            <text x="350" y="25" text-anchor="middle" font-size="14" font-weight="bold" fill="#1a3a5f">↑ NORTE ↑</text>
+            
+            <!-- Zona de barreras ZVI (rectángulo) -->
+            <rect x="200" y="180" width="300" height="200" fill="#c8e6c9" fill-opacity="0.5" stroke="#4caf50" stroke-width="2" stroke-dasharray="5,5"/>
+            <text x="350" y="280" text-anchor="middle" font-size="12" fill="#2e7d32" font-weight="bold">ZONA DE BARRERAS ZVI</text>
+            <text x="350" y="295" text-anchor="middle" font-size="10" fill="#2e7d32">(25 puntos de inyección)</text>
+            
+            <!-- Línea límite norte de barreras -->
+            <line x1="180" y1="180" x2="520" y2="180" stroke="#4caf50" stroke-width="3"/>
+            <text x="530" y="184" font-size="9" fill="#4caf50">Límite N barreras</text>
+            
+            <!-- Línea límite sur de barreras -->
+            <line x1="180" y1="380" x2="520" y2="380" stroke="#4caf50" stroke-width="3"/>
+            <text x="530" y="384" font-size="9" fill="#4caf50">Límite S barreras</text>
+            
+            <!-- Zona aguas arriba (sombreado) -->
+            <rect x="100" y="50" width="500" height="120" fill="#ffebee" fill-opacity="0.5"/>
+            <text x="350" y="75" text-anchor="middle" font-size="11" fill="#c62828" font-weight="bold">ZONA AGUAS ARRIBA</text>
+            <text x="350" y="90" text-anchor="middle" font-size="10" fill="#c62828">(Agua NO tratada por ZVI)</text>
+            
+            <!-- Zona aguas abajo -->
+            <rect x="100" y="390" width="500" height="160" fill="#e3f2fd" fill-opacity="0.5"/>
+            <text x="350" y="540" text-anchor="middle" font-size="11" fill="#1565c0" font-weight="bold">ZONA AGUAS ABAJO</text>
+            <text x="350" y="555" text-anchor="middle" font-size="10" fill="#1565c0">(Agua tratada por ZVI)</text>
+            
+            <!-- Flecha de flujo principal -->
+            <line x1="80" y1="100" x2="80" y2="500" stroke="#3498db" stroke-width="4" marker-end="url(#arrowhead)"/>
+            <text x="60" y="300" text-anchor="middle" font-size="10" fill="#3498db" transform="rotate(-90, 60, 300)">DIRECCIÓN DE FLUJO</text>
+            
+            <!-- Puntos de inyección (simplificados) -->
+            <g id="inyPoints">
+              <!-- Fila norte de inyección -->
+              <circle cx="220" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="250" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="280" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="310" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="340" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="370" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="400" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="430" cy="200" r="4" fill="#4caf50"/>
+              <circle cx="460" cy="200" r="4" fill="#4caf50"/>
+              <!-- Fila sur de inyección -->
+              <circle cx="220" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="250" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="280" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="310" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="340" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="370" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="400" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="430" cy="360" r="4" fill="#4caf50"/>
+              <circle cx="460" cy="360" r="4" fill="#4caf50"/>
+            </g>
+            
+            <!-- POZOS DE MONITOREO -->
+            
+            <!-- aPIMW01s - AGUAS ARRIBA - CRÍTICO -->
+            <g class="pozo" data-id="aPIMW01s" data-ct="2250" data-pos="AGUAS ARRIBA">
+              <circle cx="340" cy="120" r="18" fill="#dc3545" stroke="#721c24" stroke-width="3"/>
+              <text x="340" y="124" text-anchor="middle" font-size="9" fill="white" font-weight="bold">01s</text>
+              <text x="340" y="145" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">aPIMW01s</text>
+              <text x="340" y="158" text-anchor="middle" font-size="9" fill="#721c24">CT: 2,250 µg/L ⚠️</text>
+            </g>
+            
+            <!-- Línea mostrando distancia a barrera -->
+            <line x1="340" y1="138" x2="340" y2="180" stroke="#dc3545" stroke-width="2" stroke-dasharray="4,2"/>
+            <text x="360" y="160" font-size="9" fill="#dc3545">4.6 m fuera</text>
+            
+            <!-- PZ2 - AGUAS ARRIBA -->
+            <g class="pozo" data-id="PZ2">
+              <circle cx="380" cy="115" r="12" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+              <text x="380" y="119" text-anchor="middle" font-size="8" fill="white" font-weight="bold">PZ2</text>
+            </g>
+            
+            <!-- aPIMW02s/02p - EN BARRERAS -->
+            <g class="pozo" data-id="aPIMW02s" data-ct="4618">
+              <circle cx="350" cy="220" r="14" fill="#ff5722" stroke="#bf360c" stroke-width="2"/>
+              <text x="350" y="224" text-anchor="middle" font-size="8" fill="white" font-weight="bold">02s</text>
+              <text x="350" y="240" text-anchor="middle" font-size="8" fill="#bf360c">4,618 µg/L</text>
+            </g>
+            <g class="pozo" data-id="aPIMW02p" data-ct="192">
+              <circle cx="380" cy="230" r="12" fill="#ffc107" stroke="#ff8f00" stroke-width="2"/>
+              <text x="380" y="234" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">02p</text>
+            </g>
+            
+            <!-- aPIMW03s/03p - EN BARRERAS -->
+            <g class="pozo" data-id="aPIMW03s" data-ct="1135">
+              <circle cx="340" cy="290" r="14" fill="#ff9800" stroke="#e65100" stroke-width="2"/>
+              <text x="340" y="294" text-anchor="middle" font-size="8" fill="white" font-weight="bold">03s</text>
+              <text x="340" y="310" text-anchor="middle" font-size="8" fill="#e65100">1,135 µg/L</text>
+            </g>
+            <g class="pozo" data-id="aPIMW03p" data-ct="44.3">
+              <circle cx="310" cy="300" r="12" fill="#8bc34a" stroke="#558b2f" stroke-width="2"/>
+              <text x="310" y="304" text-anchor="middle" font-size="8" fill="white" font-weight="bold">03p</text>
+            </g>
+            
+            <!-- aPIMW04s/04p - AGUAS ABAJO - ÉXITO -->
+            <g class="pozo" data-id="aPIMW04s" data-ct="ND">
+              <circle cx="340" cy="420" r="18" fill="#28a745" stroke="#155724" stroke-width="3"/>
+              <text x="340" y="424" text-anchor="middle" font-size="9" fill="white" font-weight="bold">04s</text>
+              <text x="340" y="445" text-anchor="middle" font-size="10" fill="#28a745" font-weight="bold">aPIMW04s</text>
+              <text x="340" y="458" text-anchor="middle" font-size="9" fill="#155724">CT: ND ✓</text>
+            </g>
+            <g class="pozo" data-id="aPIMW04p" data-ct="3.2">
+              <circle cx="300" cy="410" r="12" fill="#4caf50" stroke="#2e7d32" stroke-width="2"/>
+              <text x="300" y="414" text-anchor="middle" font-size="8" fill="white" font-weight="bold">04p</text>
+            </g>
+            
+            <!-- aPIMW05s/05p - AGUAS ABAJO -->
+            <g class="pozo" data-id="aPIMW05p" data-ct="68.3">
+              <circle cx="370" cy="480" r="12" fill="#8bc34a" stroke="#558b2f" stroke-width="2"/>
+              <text x="370" y="484" text-anchor="middle" font-size="8" fill="white" font-weight="bold">05p</text>
+            </g>
+            <g class="pozo" data-id="aPIMW05s" data-ct="236">
+              <circle cx="340" cy="500" r="12" fill="#ffc107" stroke="#ff8f00" stroke-width="2"/>
+              <text x="340" y="504" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">05s</text>
+            </g>
+            
+            <!-- Escala -->
+            <line x1="550" y1="570" x2="650" y2="570" stroke="#333" stroke-width="2"/>
+            <text x="600" y="585" text-anchor="middle" font-size="10" fill="#333">~50 m</text>
+            
+            <!-- Leyenda de colores CT -->
+            <rect x="550" y="50" width="130" height="110" fill="white" stroke="#ccc" rx="5"/>
+            <text x="615" y="70" text-anchor="middle" font-size="10" font-weight="bold" fill="#333">CT (µg/L)</text>
+            <circle cx="570" cy="90" r="8" fill="#dc3545"/><text x="590" y="94" font-size="9">&gt;1000 (Muy alto)</text>
+            <circle cx="570" cy="110" r="8" fill="#ff9800"/><text x="590" y="114" font-size="9">500-1000</text>
+            <circle cx="570" cy="130" r="8" fill="#ffc107"/><text x="590" y="134" font-size="9">100-500</text>
+            <circle cx="570" cy="150" r="8" fill="#28a745"/><text x="590" y="154" font-size="9">&lt;100 o ND</text>
+          </svg>
+        </div>
+      </div>
+      
+      <div>
+        <div class="card">
+          <h2>🔍 Hallazgos Clave</h2>
+          
+          <div class="finding finding-critical">
+            <h4>🚨 aPIMW01s está FUERA de las barreras</h4>
+            <p>Ubicado <strong>4.6 m al NORTE</strong> del límite de las barreras ZVI. Intercepta agua <strong>ANTES</strong> del tratamiento.</p>
+          </div>
+          
+          <div class="finding finding-info">
+            <h4>💧 Dirección del flujo: Norte → Sur</h4>
+            <p>Gradiente hidráulico: 0.18%. El agua fluye desde aPIMW01s hacia las barreras y luego hacia aPIMW04s/05s.</p>
+          </div>
+          
+          <div class="finding finding-success">
+            <h4>✅ aPIMW04s confirma eficacia del ZVI</h4>
+            <p>Ubicado <strong>AGUAS ABAJO</strong> de las barreras, muestra <strong>mineralización completa</strong> (todos COVs = ND).</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="section-title">Posición de Pozos vs Barreras</div>
+          <table class="data-table">
+            <tr><th>Pozo</th><th>Posición</th><th>CT T3</th><th>Estado</th></tr>
+            <tr><td>aPIMW01s</td><td><span class="badge badge-danger">AGUAS ARRIBA</span></td><td>2,250</td><td>⚠️ Crítico</td></tr>
+            <tr><td>aPIMW02s</td><td>En barreras</td><td>4,618</td><td>⚠️ Alto</td></tr>
+            <tr><td>aPIMW02p</td><td>En barreras</td><td>192</td><td>Moderado</td></tr>
+            <tr><td>aPIMW03s</td><td>En barreras</td><td>1,135</td><td>↓ Bajando</td></tr>
+            <tr><td>aPIMW03p</td><td>En barreras</td><td>44</td><td>Bajo</td></tr>
+            <tr><td>aPIMW04s</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>ND</td><td>✅ Mineral.</td></tr>
+            <tr><td>aPIMW04p</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>3.2</td><td>✅ Bajo</td></tr>
+            <tr><td>aPIMW05p</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>68</td><td>Bajo</td></tr>
+            <tr><td>aPIMW05s</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>236</td><td>Moderado</td></tr>
+          </table>
+        </div>
+        
+        <div class="card">
+          <div class="section-title">📊 Conclusión del Análisis Espacial</div>
+          <div class="finding finding-info" style="margin-top:10px;">
+            <p><strong>El aumento de CT en aPIMW01s NO indica fallo del ISCR.</strong></p>
+            <p style="margin-top:8px;">aPIMW01s está ubicado <em>aguas arriba</em> del sistema de tratamiento y muestrea agua que <strong>aún no ha pasado por las barreras ZVI</strong>.</p>
+            <p style="margin-top:8px;">La contaminación detectada proviene de una <strong>fuente no identificada al norte del sitio</strong>, no de un fallo del tratamiento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="text-align:center; padding:15px;">
+      <p style="font-size:12px; color:#666;">Corteva Berazategui • DISPO-2024-881-GDEBA • Análisis Espacial T3 • Marzo 2026</p>
+    </div>
+  </div>
+</body>
+</html>
