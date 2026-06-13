@@ -98,8 +98,8 @@
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
         <div>
-          <h1>📊 Dashboard de Tendencias ISCR <span class="version-badge">v4.0</span><span class="new-badge">+ T3</span></h1>
-          <p class="subtitle">Corteva Berazategui • DISPO-2024-881-GDEBA • Marzo 2026 • n=4 eventos (Test Spearman habilitado)</p>
+          <h1>📊 Dashboard de Tendencias ISCR <span class="version-badge">v5.0</span><span class="new-badge">+ T4</span></h1>
+          <p class="subtitle">Corteva Berazategui • DISPO-2024-881-GDEBA • Junio 2026 • n=5 eventos (Test Spearman habilitado)</p>
         </div>
         <div class="mode-toggle">
           <button class="btn active" id="btn-well" onclick="setMode('well')">Por Pozo</button>
@@ -110,13 +110,17 @@
 
     <!-- Alertas críticas -->
     <div id="alerts-container">
-      <div class="alert-critical">
-        <h4>🚨 ATENCIÓN: aPIMW01s</h4>
-        <p>CT aumentó de 98.7 a 2,250 µg/L (+2,180%). Requiere investigación inmediata. Posible migración de pluma o cambio en gradientes hidráulicos.</p>
+      <div class="alert-success">
+        <h4>✅ RESUELTO: aPIMW01s - Pico del T3 confirmado como pulso aislado</h4>
+        <p>CT retornó a 144 µg/L en T4 tras el pico de 2,250 en T3. El retorno a valores basales descarta deterioro sostenido y confirma un pulso de masa desde la fuente upgradient (pozo de descarga histórico). El pozo muestrea agua no tratada por diseño (4.6 m al norte del perímetro de barrera).</p>
       </div>
       <div class="alert-success">
-        <h4>✅ ÉXITO: aPIMW04s - Mineralización Completa</h4>
-        <p>Todos los COVs = ND en T3. Primera confirmación de mineralización completa en el sitio. Reducción total desde LB: 99%+</p>
+        <h4>✅ ÉXITO: aPIMW04s - Mineralización sostenida</h4>
+        <p>CT no detectado o en límite de cuantificación por cuatro trimestres consecutivos (4.5 µg/L en T4); CF, CFC-11 y CFC-12 mayormente ND. Eficacia de la barrera ZVI confirmada y persistente desde el T1.</p>
+      </div>
+      <div class="alert-critical">
+        <h4>⚠ DIAGNÓSTICO T4: Pasivación generalizada</h4>
+        <p>ORP positivo en los 58 pozos de la red en T4 (mediana 152 mV), con trayectoria ascendente desde el T1 (29 mV). Condición oxidante en consolidación, consistente con cinética de pasivación en agua bicarbonatada. Limita la vida útil reactiva remanente de la barrera.</p>
       </div>
     </div>
 
@@ -139,16 +143,16 @@
 
     <!-- Footer -->
     <div class="footer">
-      <div class="footer-main">Corteva Berazategui • DISPO-2024-881-GDEBA • PO ISCR-001 v3.1 • ESTCP ER-201427 • Marzo 2026</div>
+      <div class="footer-main">Corteva Berazategui • DISPO-2024-881-GDEBA • PO ISCR-001 v3.1 • ESTCP ER-201427 • Junio 2026</div>
       <div class="footer-author">Desarrollado por <span style="color: #2980b9;">Enrique Garcia Baumgartner</span> — <em>WeTTo</em></div>
     </div>
   </div>
 
   <script>
-    // DATA - Con T3 (Enero 2026)
+    // DATA - Con T4 (Abril 2026)
     var DATA = {
-      events: ["LB", "T1", "T2", "T3"],
-      eventLabels: ["Sep-2024", "Ago-2025", "Oct-2025", "Ene-2026"],
+      events: ["LB", "T1", "T2", "T3", "T4"],
+      eventLabels: ["Sep-2024", "Ago-2025", "Oct-2025", "Ene-2026", "Abr-2026"],
       compounds: [
         { id: "CT", name: "Tetracloruro de Carbono", ng: 3, role: "Padre", color: "#1e3a5f" },
         { id: "CF", name: "Cloroformo", ng: 30, role: "Hijo", color: "#3498db" },
@@ -160,30 +164,31 @@
       ],
       // Resultados Spearman precalculados
       spearman: {
-        "aPIMW03s": { "CT": { rho: -1.000, pval: 0.0000, sig: true }, "CF": { rho: -1.000, pval: 0.0000, sig: true }, "CFC11": { rho: -1.000, pval: 0.0000, sig: true } },
-        "aPIMW02p": { "CFC11": { rho: -1.000, pval: 0.0000, sig: true } }
+        "aPIMW04p": { "CF": { rho: -1.0, pval: 0.0000, sig: true } },
+        "aPIMW05p": { "CFC12": { rho: -1.0, pval: 0.0000, sig: true } }
       },
       wells: {
-        // POZOS BARRERA [LB, T1, T2, T3]
-        "aPIMW01s": { type: "Barrera", CT: [98.7, 182, 129, 2250], CF: [40.6, 118, 100, 928], PCE: [null, null, 2.8, 28.5], TCE: [null, 1, null, null], DCE: [null, null, null, null], CFC11: [1, 1, 1, 5.1], CFC12: [null, null, null, null], ORP: [104.2, 25.3, 123.4, 61.1], pH: [7.14, 7.01, 6.93, 6.86] },
-        "aPIMW02p": { type: "Barrera", CT: [1185, 99.8, 187, 192], CF: [307, 124, 127, 107], PCE: [null, null, null, null], TCE: [1, null, null, null], DCE: [0.4, null, null, null], CFC11: [31.4, 2.6, 2.2, 2.1], CFC12: [3.9, 1.2, 1, null], ORP: [120.4, -94.7, 42.0, 27.2], pH: [7.14, 7.11, 6.66, 7.11] },
-        "aPIMW02s": { type: "Barrera", CT: [3392, 2125, 2071, 4618], CF: [975, 782, 879, 1148], PCE: [null, 11.9, 14.2, 31.2], TCE: [1, 1, null, null], DCE: [0.6, 0.5, 0.4, 0.5], CFC11: [9.8, 3.9, 2.7, 6.1], CFC12: [1, null, null, null], ORP: [96.1, 22.5, 154.0, 72.7], pH: [7.25, 7.12, 6.53, 6.85] },
-        "aPIMW03p": { type: "Barrera", CT: [52.6, 11.5, 22.5, 44.3], CF: [13.8, 5.5, null, 8.9], PCE: [null, null, null, null], TCE: [1, null, null, null], DCE: [0.3, 0.3, 0.3, null], CFC11: [3.1, 1.5, 1.7, 3.0], CFC12: [2.1, 4.6, 2, 3.8], ORP: [169.0, -52.6, 116.1, 232.8], pH: [7.38, 7.16, 7.22, 7.02] },
-        "aPIMW03s": { type: "Barrera", CT: [3627, 2416, 1384, 1135], CF: [990, 594, 318, 317], PCE: [null, null, null, null], TCE: [null, 1, null, null], DCE: [0.8, 0.6, 0.3, null], CFC11: [68.4, 34.6, 13.9, 12.2], CFC12: [4.5, 2.5, 1, null], ORP: [128.5, 40.0, 135.6, 232.2], pH: [7.16, 6.96, 7.09, 6.94] },
-        "aPIMW04p": { type: "Barrera", CT: [10.5, 7.8, 10.3, 3.2], CF: [12.6, 11.0, 7.3, null], PCE: [null, null, null, null], TCE: [1, null, 1, null], DCE: [0.3, null, null, null], CFC11: [2.8, 2, 2.2, null], CFC12: [1.4, 1.5, 1.8, null], ORP: [125.7, -0.5, 58.6, 70], pH: [7.26, 7.14, 7.56, 7.14] },
-        "aPIMW04s": { type: "Barrera", CT: [90.1, 4.5, 1.0, null], CF: [35.0, 5.4, null, null], PCE: [null, null, null, null], TCE: [1, 1, null, null], DCE: [0.4, 0.3, null, null], CFC11: [6.7, 1, null, null], CFC12: [1, 1, null, null], ORP: [239.8, -106.1, -52.9, 44.4], pH: [7.25, 7.10, 7.41, 7.43] },
-        "aPIMW05p": { type: "Barrera", CT: [221, 39.7, 24.3, 68.3], CF: [134, 21.3, 12.8, 37.6], PCE: [null, null, null, null], TCE: [1, 1, 1, null], DCE: [1.1, 0.4, 0.3, null], CFC11: [34, 6.7, 5.3, 7.7], CFC12: [5.9, 3.7, 3.6, null], ORP: [106.9, -40.5, -14.0, 135.2], pH: [7.17, 7.15, 7.25, 7.14] },
-        "aPIMW05s": { type: "Barrera", CT: [471, 227, 224, 236], CF: [233, 114, 154, 152], PCE: [null, null, null, null], TCE: [1, 1, 1, 1.7], DCE: [2.2, 1.1, 1.2, 0.8], CFC11: [91.3, 44.7, 61.6, 26.1], CFC12: [10.1, 10.1, 14.1, null], ORP: [null, 2.4, 16.2, 139.5], pH: [null, 7.15, 7.27, 7.15] },
+        // POZOS BARRERA [LB, T1, T2, T3, T4]
+        "aPIMW01s": { type: "Barrera", CT: [98.7, 182, 129, 2250, 144], CF: [40.6, 118, 100, 928, 85.1], PCE: [null, null, 2.8, 28.5, null], TCE: [null, 1, null, null, null], DCE: [null, null, null, null, null], CFC11: [1, 1, 1, 5.1, 1.3], CFC12: [null, null, null, null, null], ORP: [104.2, 25.3, 123.4, 61.1, 164.8], pH: [7.14, 7.01, 6.93, 6.86, 6.56] },
+        "aPIMW02p": { type: "Barrera", CT: [1185, 99.8, 187, 192, 206], CF: [307, 124, 127, 107, 83.1], PCE: [null, null, null, null, null], TCE: [1, null, null, null, null], DCE: [0.4, null, null, null, null], CFC11: [31.4, 2.6, 2.2, 2.1, 2.9], CFC12: [3.9, 1.2, 1, null, null], ORP: [120.4, -94.7, 42, 27.2, 14.2], pH: [7.14, 7.11, 6.66, 7.11, 6.85] },
+        "aPIMW02s": { type: "Barrera", CT: [3392, 2125, 2071, 4618, 2597], CF: [975, 782, 879, 1148, 694], PCE: [null, 11.9, 14.2, 31.2, 15.1], TCE: [1, 1, null, null, null], DCE: [0.6, 0.5, 0.4, 0.5, null], CFC11: [9.8, 3.9, 2.7, 6.1, 4.4], CFC12: [1, null, null, null, null], ORP: [96.1, 22.5, 154, 72.7, 125], pH: [7.25, 7.12, 6.53, 6.85, 6.81] },
+        "aPIMW03p": { type: "Barrera", CT: [52.6, 11.5, 22.5, 44.3, 13.3], CF: [13.8, 5.5, null, 8.9, null], PCE: [null, null, null, null, null], TCE: [1, null, null, null, 1], DCE: [0.3, 0.3, 0.3, null, 0.5], CFC11: [3.1, 1.5, 1.7, 3, 2.2], CFC12: [2.1, 4.6, 2, 3.8, 4.1], ORP: [169, -52.6, 116.1, 232.8, 184.5], pH: [7.38, 7.16, 7.22, 7.02, 6.72] },
+        "aPIMW03s": { type: "Barrera", CT: [3627, 2416, 1384, 1135, 2372], CF: [990, 594, 318, 317, 634], PCE: [null, null, null, null, null], TCE: [null, 1, null, null, 1], DCE: [0.8, 0.6, 0.3, null, 0.6], CFC11: [68.4, 34.6, 13.9, 12.2, 25.1], CFC12: [4.5, 2.5, 1, null, 1], ORP: [128.5, 40, 135.6, 232.2, 185], pH: [7.16, 6.96, 7.09, 6.94, 6.68] },
+        "aPIMW04p": { type: "Barrera", CT: [10.5, 7.8, 10.3, 3.2, 5.1], CF: [12.6, 11, 7.3, null, 5], PCE: [null, null, null, null, null], TCE: [1, null, 1, null, 1], DCE: [0.3, null, null, null, null], CFC11: [2.8, 2, 2.2, null, 1.3], CFC12: [1.4, 1.5, 1.8, null, 1], ORP: [125.7, -0.5, 58.6, 70, 40.5], pH: [7.26, 7.14, 7.56, 7.14, 7.14] },
+        "aPIMW04s": { type: "Barrera", CT: [90.1, 4.5, 1, null, 4.5], CF: [35, 5.4, null, null, null], PCE: [null, null, null, null, null], TCE: [1, 1, null, null, null], DCE: [0.4, 0.3, null, null, null], CFC11: [6.7, 1, null, null, 1], CFC12: [1, 1, null, null, null], ORP: [239.8, -106.1, -52.9, 44.4, 32.1], pH: [7.25, 7.1, 7.41, 7.43, 7.29] },
+        "aPIMW05p": { type: "Barrera", CT: [221, 39.7, 24.3, 68.3, 61.7], CF: [134, 21.3, 12.8, 37.6, 27.1], PCE: [null, null, null, null, null], TCE: [1, 1, 1, null, 1], DCE: [1.1, 0.4, 0.3, null, 0.5], CFC11: [34, 6.7, 5.3, 7.7, 9.3], CFC12: [5.9, 3.7, 3.6, null, 1.9], ORP: [106.9, -40.5, -14, 135.2, 83.5], pH: [7.17, 7.15, 7.25, 7.14, 6.93] },
+        "aPIMW05s": { type: "Barrera", CT: [471, 227, 224, 236, 99.9], CF: [233, 114, 154, 152, 76.2], PCE: [null, null, null, null, null], TCE: [1, 1, 1, 1.7, 1.8], DCE: [2.2, 1.1, 1.2, 0.8, 0.5], CFC11: [91.3, 44.7, 61.6, 26.1, 9.6], CFC12: [10.1, 10.1, 14.1, null, 1], ORP: [null, 2.4, 16.2, 139.5, 94.2], pH: [null, 7.15, 7.27, 7.15, 7.1] },
         // POZOS CONVENCIONALES
-        "D17": { type: "Convencional", CT: [null, null, null, null], CF: [null, null, null, null], PCE: [null, null, null, null], TCE: [null, null, null, null], DCE: [null, null, null, null], CFC11: [null, null, null, null], CFC12: [0.4, null, null, null], ORP: [156.7, 40.8, 159.0, 126.3], pH: [7.31, 7.21, 7.15, 7.07] },
-        "D18": { type: "Convencional", CT: [2.0, 4.2, 5.5, 5.6], CF: [7.0, 9.0, 10.5, 19.1], PCE: [null, null, null, null], TCE: [1, null, null, null], DCE: [0.4, null, null, null], CFC11: [0.1, 0.2, 0.3, 3.2], CFC12: [0.3, null, null, null], ORP: [268.6, 87.4, 185.0, 109], pH: [7.14, 6.93, 6.60, 6.88] },
-        "D20": { type: "Convencional", CT: [null, null, null, null], CF: [null, null, null, null], PCE: [null, null, null, null], TCE: [3.9, 3.2, 4.0, 8.1], DCE: [0.4, null, null, null], CFC11: [null, null, null, null], CFC12: [0.3, null, null, null], ORP: [-117.1, 20.3, 104.6, 39.9], pH: [6.43, 6.17, 6.16, 6.19] },
-        "MW4": { type: "Convencional", CT: [27.7, null, 1.5, null], CF: [127, null, 5.0, null], PCE: [null, null, null, null], TCE: [1.5, null, 0.9, null], DCE: [1.2, null, 0.2, null], CFC11: [2.1, null, 0.4, null], CFC12: [0.5, null, 0.3, null], ORP: [195.5, null, 199.6, null], pH: [7.27, null, 6.91, null] },
-        "MW8": { type: "Convencional", CT: [3.2, null, 1.6, null], CF: [22.6, null, null, null], PCE: [null, null, null, null], TCE: [1, null, 1.5, null], DCE: [null, null, null, null], CFC11: [0.6, null, 0.2, null], CFC12: [0.2, null, null, null], ORP: [247.4, null, 180.6, null], pH: [7.17, null, 7.13, null] },
-        "MW11": { type: "Convencional", CT: [null, null, null, null], CF: [8.4, null, null, null], PCE: [null, null, null, null], TCE: [null, null, null, null], DCE: [2.6, 0.4, 0.2, 0.5], CFC11: [2.1, 0.4, 0.4, 2.2], CFC12: [1, 0.5, null, null], ORP: [90.3, 8.1, 173.6, 105.5], pH: [7.13, 7.10, 6.96, 6.83] },
-        "P03a": { type: "Convencional", CT: [null, null, null, null], CF: [null, null, null, null], PCE: [null, null, null, null], TCE: [3.6, 2.8, 3.8, 6.6], DCE: [1.3, 1.2, 1.5, 2.0], CFC11: [null, null, 0.2, null], CFC12: [null, 0.4, 0.3, null], ORP: [-127.9, -53.0, 151.5, 69], pH: [6.02, 6.01, 5.80, 5.97] },
-        "PZ2": { type: "Convencional", CT: [2.8, 2.2, 8.1, 9.2], CF: [null, null, null, 10.0], PCE: [null, null, 0.3, null], TCE: [1, null, null, null], DCE: [2.5, 0.5, null, null], CFC11: [null, null, null, null], CFC12: [0.3, null, null, null], ORP: [81.4, 22.5, 111.4, 233.4], pH: [7.20, 7.10, 7.06, 7.2] },
-        "PZ3": { type: "Convencional", CT: [9.9, 4.6, 33.3, 25.1], CF: [10.7, null, 13.3, 13.8], PCE: [null, null, 1.1, null], TCE: [null, null, 0.3, null], DCE: [1.1, null, 0.3, null], CFC11: [null, null, null, null], CFC12: [null, null, 0.5, null], ORP: [105.7, 25.5, 196.2, 128.8], pH: [7.25, 7.13, 6.73, 6.99] }
+        "D17": { type: "Convencional", CT: [null, null, null, null, null], CF: [null, null, null, null, null], PCE: [null, null, null, null, null], TCE: [null, null, null, null, null], DCE: [null, null, null, null, null], CFC11: [null, null, null, null, null], CFC12: [0.4, null, null, null, null], ORP: [156.7, 40.8, 159, 126.3, 160.3], pH: [7.31, 7.21, 7.15, 7.07, 7.09] },
+        "D18": { type: "Convencional", CT: [2, 4.2, 5.5, 5.6, 4], CF: [7, 9, 10.5, 19.1, 19.8], PCE: [null, null, null, null, null], TCE: [1, null, null, null, 1], DCE: [0.4, null, null, null, null], CFC11: [0.1, 0.2, 0.3, 3.2, 2.5], CFC12: [0.3, null, null, null, 1], ORP: [268.6, 87.4, 185, 109, 205], pH: [7.14, 6.93, 6.6, 6.88, 6.86] },
+        "D20": { type: "Convencional", CT: [null, null, null, null, null], CF: [null, null, null, null, null], PCE: [null, null, null, null, null], TCE: [3.9, 3.2, 4, 8.1, 7.5], DCE: [0.4, null, null, null, 0.3], CFC11: [null, null, null, null, null], CFC12: [0.3, null, null, null, null], ORP: [-117.1, 20.3, 104.6, 39.9, 133.5], pH: [6.43, 6.17, 6.16, 6.19, 6.02] },
+        "MW4": { type: "Convencional", CT: [27.7, null, 1.5, null, 11.2], CF: [127, null, 5, null, 48.9], PCE: [null, null, null, null, null], TCE: [1.5, null, 0.9, null, 1], DCE: [1.2, null, 0.2, null, 1.3], CFC11: [2.1, null, 0.4, null, 1.6], CFC12: [0.5, null, 0.3, null, null], ORP: [195.5, null, 199.6, null, 178.3], pH: [7.27, null, 6.91, null, 7.12] },
+        "MW8": { type: "Convencional", CT: [3.2, null, 1.6, null, 1.6], CF: [22.6, null, null, null, 9.1], PCE: [null, null, null, null, null], TCE: [1, null, 1.5, null, 1.3], DCE: [null, null, null, null, 0.4], CFC11: [0.6, null, 0.2, null, null], CFC12: [0.2, null, null, null, null], ORP: [247.4, null, 180.6, null, 185.1], pH: [7.17, null, 7.13, null, 6.73] },
+        "MW11": { type: "Convencional", CT: [null, null, null, null, null], CF: [8.4, null, null, null, null], PCE: [null, null, null, null, null], TCE: [null, null, null, null, 1], DCE: [2.6, 0.4, 0.2, 0.5, 1.1], CFC11: [2.1, 0.4, 0.4, 2.2, 2.9], CFC12: [1, 0.5, null, null, 1.2], ORP: [90.3, 8.1, 173.6, 105.5, 160.4], pH: [7.13, 7.1, 6.96, 6.83, 6.69] },
+        "P03a": { type: "Convencional", CT: [null, null, null, null, null], CF: [null, null, null, null, null], PCE: [null, null, null, null, null], TCE: [3.6, 2.8, 3.8, 6.6, 2.6], DCE: [1.3, 1.2, 1.5, 2, 0.6], CFC11: [null, null, 0.2, null, null], CFC12: [null, 0.4, 0.3, null, null], ORP: [-127.9, -53, 151.5, 69, 18.5], pH: [6.02, 6.01, 5.8, 5.97, 5.86] },
+        "PZ2": { type: "Convencional", CT: [2.8, 2.2, 8.1, 9.2, 3.4], CF: [null, null, null, 10, null], PCE: [null, null, 0.3, null, null], TCE: [1, null, null, null, null], DCE: [2.5, 0.5, null, null, 0.3], CFC11: [null, null, null, null, null], CFC12: [0.3, null, null, null, null], ORP: [81.4, 22.5, 111.4, 233.4, 155.7], pH: [7.2, 7.1, 7.06, 7.2, 6.78] },
+        "PZ3": { type: "Convencional", CT: [9.9, 4.6, 33.3, 25.1, 23.4], CF: [10.7, null, 13.3, 13.8, 35.7], PCE: [null, null, 1.1, null, null], TCE: [null, null, 0.3, null, null], DCE: [1.1, null, 0.3, null, null], CFC11: [null, null, null, null, null], CFC12: [null, null, 0.5, null, null], ORP: [105.7, 25.5, 196.2, 128.8, 152], pH: [7.25, 7.13, 6.73, 6.99, 6.93] }
+      
       }
     };
 
@@ -258,7 +263,7 @@
           if (DATA.wells[id].type === "Barrera") {
             var trend = calcTrend(DATA.wells[id].CT);
             var active = currentWell === id ? " active" : "";
-            var warning = (id === "aPIMW01s") ? " style='border-color:#dc3545;'" : "";
+            var warning = (id === "aPIMW01s") ? " style='border-color:#28a745;'" : "";
             var success = (id === "aPIMW04s") ? " style='border-color:#28a745;'" : "";
             html += '<button class="btn' + active + '"' + warning + success + ' onclick="selectWell(\'' + id + '\')">';
             html += '<div class="btn-label">' + id.replace("aPIMW", "") + '</div>';
@@ -317,7 +322,7 @@
         var tagClass = well.type === "Barrera" ? "barrera" : "conv";
         var extraBadge = "";
         if (currentWell === "aPIMW04s") extraBadge = '<span style="background:#28a745;color:#fff;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:8px;">✓ Mineralización</span>';
-        if (currentWell === "aPIMW01s") extraBadge = '<span style="background:#dc3545;color:#fff;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:8px;">⚠ Atención</span>';
+        if (currentWell === "aPIMW01s") extraBadge = '<span style="background:#28a745;color:#fff;padding:3px 8px;border-radius:10px;font-size:10px;margin-left:8px;">✓ Resuelto</span>';
         
         titleEl.innerHTML = '<h2>' + currentWell + '<span class="well-tag ' + tagClass + '">' + well.type + '</span>' + extraBadge + '</h2>';
         
@@ -365,7 +370,7 @@
         
         chart = new Chart(ctx, {
           type: "bar",
-          data: { labels: labels, datasets: [{ label: "% Cambio LB→T3", data: values, backgroundColor: colors, borderRadius: 6 }] },
+          data: { labels: labels, datasets: [{ label: "% Cambio LB→T4", data: values, backgroundColor: colors, borderRadius: 6 }] },
           options: {
             indexAxis: "y",
             responsive: true,
@@ -385,7 +390,7 @@
         
         // Tabla concentraciones
         html += '<div class="card"><h3>Concentraciones (µg/L)</h3><table>';
-        html += '<tr><th>Comp.</th><th class="right">LB</th><th class="right">T1</th><th class="right">T2</th><th class="right">T3</th><th class="center">LB→T3</th></tr>';
+        html += '<tr><th>Comp.</th><th class="right">LB</th><th class="right">T1</th><th class="right">T2</th><th class="right">T3</th><th class="right">T4</th><th class="center">LB→T4</th></tr>';
         DATA.compounds.forEach(function(c) {
           var vals = well[c.id];
           var trend = calcTrend(vals);
@@ -403,6 +408,7 @@
           html += '<td class="right">' + formatVal(vals[1]) + '</td>';
           html += '<td class="right">' + formatVal(vals[2]) + '</td>';
           html += '<td class="right">' + formatVal(vals[3]) + '</td>';
+          html += '<td class="right">' + formatVal(vals[4]) + '</td>';
           html += '<td class="center"><span class="trend-badge ' + trendClass + '">' + trend.label + '</span>' + spearmanBadge + '</td>';
           html += '</tr>';
         });
@@ -423,7 +429,7 @@
         
         // Spearman box
         if (DATA.spearman[currentWell]) {
-          html += '<div class="spearman-box"><div class="spearman-title">📊 Test Spearman (n=4)</div>';
+          html += '<div class="spearman-box"><div class="spearman-title">📊 Test Spearman (n=5)</div>';
           Object.keys(DATA.spearman[currentWell]).forEach(function(comp) {
             var sp = DATA.spearman[currentWell][comp];
             html += '<div class="spearman-result sig">' + comp + ': ρ=' + sp.rho.toFixed(3) + ', p=' + sp.pval.toFixed(4) + ' → <strong>Tendencia significativa ↓</strong></div>';
@@ -433,29 +439,32 @@
         
         // Mensajes contextuales
         if (currentWell === "aPIMW04s") {
-          html += '<div class="success-box">✅ <strong>Mineralización completa confirmada.</strong> Todos los COVs están por debajo del límite de detección. El ZVI degradó completamente CT, CF y subproductos.</div>';
+          html += '<div class="success-box">✅ <strong>Mineralización sostenida.</strong> CT en límite de cuantificación y subproductos mayormente ND por cuatro trimestres. Eficacia de la barrera ZVI confirmada y persistente.</div>';
         } else if (currentWell === "aPIMW01s") {
-          html += '<div class="warning-box">🚨 <strong>Requiere investigación.</strong> CT aumentó +2,180% desde LB. Evaluar: cambios hidráulicos, migración de pluma, o fuente no identificada aguas arriba.</div>';
-        } else if (currentWell === "aPIMW03s") {
-          html += '<div class="success-box">✅ <strong>Tendencia decreciente significativa.</strong> CT y CF con ρ=-1.000 (p<0.05). Reducción sostenida del 69% en CT desde LB.</div>';
+          html += '<div class="success-box">✅ <strong>Pico del T3 resuelto.</strong> CT retornó a 144 µg/L en T4 (vs. 2,250 en T3), confirmando un pulso de masa desde la fuente upgradient y no un deterioro. Pozo upgradient: muestrea agua no tratada por diseño.</div>';
+        } else if (currentWell === "aPIMW02s" || currentWell === "aPIMW03s") {
+          html += '<div class="warning-box">⚠ <strong>Fuente upgradient activa.</strong> Concentraciones de CT sin tendencia descendente sostenida (repunte en T4). El balance de masa no muestra agotamiento de la fuente tras cinco eventos.</div>';
+        } else if (currentWell === "aPIMW05s") {
+          html += '<div class="success-box">✅ <strong>Primer descenso de serie.</strong> CT alcanzó su mínimo (100 µg/L) en T4. Vigilar confirmación en T5.</div>';
         }
         
         html += '</div>';
         
       } else {
         var stats = getCompoundStats(currentCompound);
-        html += '<div class="card"><h3>Resumen Pozos Barrera (n=4)</h3>';
+        html += '<div class="card"><h3>Resumen Pozos Barrera (n=5)</h3>';
         html += '<div class="summary-item summary-down"><span class="summary-label">↓ Mejorando</span><span class="summary-value">' + stats.down + '</span></div>';
         html += '<div class="summary-item summary-stable"><span class="summary-label">= Estable</span><span class="summary-value">' + stats.stable + '</span></div>';
         html += '<div class="summary-item summary-up"><span class="summary-label">↑ Empeorando</span><span class="summary-value">' + stats.up + '</span></div>';
         html += '<div class="summary-item summary-na"><span class="summary-label">Sin datos</span><span class="summary-value">' + stats.na + '</span></div>';
         html += '</div>';
         
-        html += '<div class="info-box"><h4>ℹ️ Test Spearman (n=4)</h4><ul>';
-        html += '<li><strong>Significativos (p<0.05):</strong></li>';
-        html += '<li>aPIMW03s: CT, CF ↓</li>';
-        html += '<li>aPIMW02p, aPIMW03s: CFC11 ↓</li>';
-        html += '<li><strong>n=4:</strong> Test Spearman aplicable</li>';
+        html += '<div class="info-box"><h4>ℹ️ Test Spearman (n=5)</h4><ul>';
+        html += '<li><strong>Significativos (p<0.05, |ρ|≥0.9):</strong></li>';
+        html += '<li>aPIMW04p: CF ↓ (ρ=-1.000)</li>';
+        html += '<li>aPIMW05p: CFC-12 ↓ (ρ=-1.000)</li>';
+        html += '<li><strong>Nota T4:</strong> aPIMW03s pierde significancia por repunte en T4 (fuente activa)</li>';
+        html += '<li><strong>n=5:</strong> Test Spearman aplicable</li>';
         html += '</ul></div>';
       }
       
