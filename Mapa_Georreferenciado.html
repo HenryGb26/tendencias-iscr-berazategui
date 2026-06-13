@@ -324,7 +324,7 @@ function showTab(t) {
   document.getElementById('t-sat').className=t==='sat'?'tab-btn active':'tab-btn';
   document.getElementById('panel-svg').className=t==='svg'?'tab-panel active':'tab-panel';
   document.getElementById('panel-sat').className=t==='sat'?'tab-panel active':'tab-panel';
-  if(t==='sat'&&window._map) setTimeout(function(){window._map.invalidateSize();},100);
+  if(t==='sat'&&window._map){ [100,400,900].forEach(function(d){ setTimeout(function(){ window._map.invalidateSize(); },d); }); }
 }
 function ctColor(ct){ if(ct===null)return '#9e9e9e'; if(ct>1000)return '#dc3545'; if(ct>500)return '#ff9800'; if(ct>100)return '#ffc107'; if(ct>3)return '#8bc34a'; return '#28a745'; }
 function orpColor(o){ if(o===null)return '#bbb'; return o>0?'#c0392b':'#27ae60'; }
@@ -341,7 +341,14 @@ window.addEventListener('load', function() {
   var lats=DATA.pts.map(function(p){return p.lat;}); var lons=DATA.pts.map(function(p){return p.lon;});
   var map=L.map('leafletMap').setView([(Math.min.apply(0,lats)+Math.max.apply(0,lats))/2,(Math.min.apply(0,lons)+Math.max.apply(0,lons))/2],18);
   window._map=map;
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri World Imagery',maxZoom:21}).addTo(map);
+  // Capas base: satelital (Esri) + Google satélite + callejero (OSM). Si una falla, se puede alternar.
+  var esriSat=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19,crossOrigin:true});
+  var googleSat=L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{subdomains:['mt0','mt1','mt2','mt3'],attribution:'Google',maxZoom:21,crossOrigin:true});
+  var osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'OpenStreetMap',maxZoom:19,crossOrigin:true});
+  // Capa por defecto: Esri; si un tile falla, mostramos fondo neutro y dejamos alternar
+  esriSat.addTo(map);
+  esriSat.on('tileerror',function(){ esriSat._errored=(esriSat._errored||0)+1; });
+  L.control.layers({'Satélite (Esri)':esriSat,'Satélite (Google)':googleSat,'Callejero (OSM)':osm},null,{collapsed:false,position:'topright'}).addTo(map);
   DATA.inj.forEach(function(p){ L.circleMarker([p.lat,p.lon],{radius:3,color:'#4caf50',fillColor:'#4caf50',fillOpacity:0.8,weight:1}).addTo(map).bindTooltip(p.id,{direction:'top'}); });
   var grp=[];
   DATA.pts.forEach(function(p){
