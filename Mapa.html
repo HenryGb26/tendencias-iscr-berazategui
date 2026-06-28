@@ -40,8 +40,8 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>🗺️ Análisis Espacial - Caso aPIMW01s</h1>
-      <p class="subtitle">Corteva Berazategui • Relación entre posición de pozos, barreras ZVI y concentraciones</p>
+      <h1>🗺️ Análisis Espacial — Modelo de fuente upgradient</h1>
+      <p class="subtitle">Corteva Berazategui • T4 (Abr-2026) • Relación entre posición de pozos, barreras ZVI y concentraciones</p>
     </div>
 
     <div class="grid">
@@ -118,12 +118,12 @@
             
             <!-- POZOS DE MONITOREO -->
             
-            <!-- aPIMW01s - AGUAS ARRIBA - CRÍTICO -->
-            <g class="pozo" data-id="aPIMW01s" data-ct="2250" data-pos="AGUAS ARRIBA">
-              <circle cx="340" cy="120" r="18" fill="#dc3545" stroke="#721c24" stroke-width="3"/>
+            <!-- aPIMW01s - AGUAS ARRIBA - PICO RESUELTO EN T4 -->
+            <g class="pozo" data-id="aPIMW01s" data-ct="144" data-pos="AGUAS ARRIBA">
+              <circle cx="340" cy="120" r="18" fill="#e67e22" stroke="#a04000" stroke-width="3"/>
               <text x="340" y="124" text-anchor="middle" font-size="9" fill="white" font-weight="bold">01s</text>
-              <text x="340" y="145" text-anchor="middle" font-size="10" fill="#dc3545" font-weight="bold">aPIMW01s</text>
-              <text x="340" y="158" text-anchor="middle" font-size="9" fill="#721c24">CT: 2,250 µg/L ⚠️</text>
+              <text x="340" y="145" text-anchor="middle" font-size="10" fill="#a04000" font-weight="bold">aPIMW01s</text>
+              <text x="340" y="158" text-anchor="middle" font-size="9" fill="#7a3a0c">CT: 144 µg/L (T3: 2,250)</text>
             </g>
             
             <!-- Línea mostrando distancia a barrera -->
@@ -210,40 +210,40 @@
           </div>
           
           <div class="finding finding-success">
-            <h4>✅ aPIMW04s confirma eficacia del ZVI</h4>
-            <p>Ubicado <strong>AGUAS ABAJO</strong> de las barreras, muestra <strong>mineralización completa</strong> (todos COVs = ND).</p>
+            <h4>✅ aPIMW04s validó la eficacia del ZVI (LB→T3)</h4>
+            <p>Ubicado <strong>AGUAS ABAJO</strong> de las barreras, mantuvo <strong>mineralización completa de LB a T3</strong> (todos COVs = ND). En T4 reaparece CT (4.5 µg/L) sin productos hijos: primer indicio de breakthrough advectivo a través de la zona pasivada.</p>
           </div>
         </div>
         
         <div class="card">
           <div class="section-title">Posición de Pozos vs Barreras</div>
           <table class="data-table">
-            <tr><th>Pozo</th><th>Posición</th><th>CT T3</th><th>Estado</th></tr>
-            <tr><td>aPIMW01s</td><td><span class="badge badge-danger">AGUAS ARRIBA</span></td><td>2,250</td><td>⚠️ Crítico</td></tr>
-            <tr><td>aPIMW02s</td><td>En barreras</td><td>4,618</td><td>⚠️ Alto</td></tr>
-            <tr><td>aPIMW02p</td><td>En barreras</td><td>192</td><td>Moderado</td></tr>
-            <tr><td>aPIMW03s</td><td>En barreras</td><td>1,135</td><td>↓ Bajando</td></tr>
-            <tr><td>aPIMW03p</td><td>En barreras</td><td>44</td><td>Bajo</td></tr>
-            <tr><td>aPIMW04s</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>ND</td><td>✅ Mineral.</td></tr>
-            <tr><td>aPIMW04p</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>3.2</td><td>✅ Bajo</td></tr>
-            <tr><td>aPIMW05p</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>68</td><td>Bajo</td></tr>
-            <tr><td>aPIMW05s</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>236</td><td>Moderado</td></tr>
+            <tr><th>Pozo</th><th>Posición</th><th>CT T4</th><th>Estado</th></tr>
+            <tr><td>aPIMW01s</td><td><span class="badge badge-danger">AGUAS ARRIBA</span></td><td>144</td><td>Pulso resuelto</td></tr>
+            <tr><td>aPIMW02s</td><td>En barreras</td><td>2,597</td><td>⚠️ Fuente activa</td></tr>
+            <tr><td>aPIMW02p</td><td>En barreras</td><td>206</td><td>Moderado</td></tr>
+            <tr><td>aPIMW03s</td><td>En barreras</td><td>2,372</td><td>⚠️ Fuente activa</td></tr>
+            <tr><td>aPIMW03p</td><td>En barreras</td><td>13</td><td>Bajo</td></tr>
+            <tr><td>aPIMW04s</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>4.5</td><td>Breakthrough inc.</td></tr>
+            <tr><td>aPIMW04p</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>5.1</td><td>✅ Bajo</td></tr>
+            <tr><td>aPIMW05p</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>62</td><td>Bajo</td></tr>
+            <tr><td>aPIMW05s</td><td><span class="badge badge-success">AGUAS ABAJO</span></td><td>100</td><td>↓ Mínimo serie</td></tr>
           </table>
         </div>
         
         <div class="card">
           <div class="section-title">📊 Conclusión del Análisis Espacial</div>
           <div class="finding finding-info" style="margin-top:10px;">
-            <p><strong>El aumento de CT en aPIMW01s NO indica fallo del ISCR.</strong></p>
-            <p style="margin-top:8px;">aPIMW01s está ubicado <em>aguas arriba</em> del sistema de tratamiento y muestrea agua que <strong>aún no ha pasado por las barreras ZVI</strong>.</p>
-            <p style="margin-top:8px;">La contaminación detectada proviene de una <strong>fuente no identificada al norte del sitio</strong>, no de un fallo del tratamiento.</p>
+            <p><strong>El comportamiento de aPIMW01s NO indica fallo del ISCR.</strong></p>
+            <p style="margin-top:8px;">aPIMW01s está ubicado <em>aguas arriba</em> del sistema de tratamiento y muestrea agua que <strong>aún no ha pasado por las barreras ZVI</strong>. El pico del T3 (2,250 µg/L) se resolvió en T4 (144 µg/L), confirmando un pulso de masa transitorio.</p>
+            <p style="margin-top:8px;">La fuente sostenida se manifiesta en aPIMW02s/03s (CT alto sin agotamiento tras 5 eventos), atribuible a la <strong>pileta histórica de descarga al noroeste del sitio</strong> (firma Swarts: CT+CFC+CF, antimonio como trazador). No es un fallo del tratamiento, sino un foco no caracterizado en el plan original.</p>
           </div>
         </div>
       </div>
     </div>
     
     <div class="card" style="text-align:center; padding:15px;">
-      <p style="font-size:12px; color:#666;">Corteva Berazategui • DISPO-2024-881-GDEBA • Análisis Espacial T3 • Marzo 2026</p>
+      <p style="font-size:12px; color:#666;">Corteva Berazategui • DISPO-2024-881-GDEBA • Análisis Espacial T4 • Junio 2026</p>
     </div>
   </div>
 </body>

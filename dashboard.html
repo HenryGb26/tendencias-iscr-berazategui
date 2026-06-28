@@ -81,12 +81,16 @@
     .spearman-title { font-weight: 600; font-size: 12px; color: #0056b3; margin-bottom: 8px; }
     .spearman-result { font-size: 11px; color: #004085; }
     .spearman-result.sig { font-weight: 600; }
+    .spearman-result.up { color: #C55A11; }
     .alert-critical { background: #f8d7da; border: 2px solid #dc3545; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
     .alert-critical h4 { color: #721c24; margin-bottom: 8px; }
     .alert-critical p { color: #721c24; font-size: 12px; }
     .alert-success { background: #d4edda; border: 2px solid #28a745; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
     .alert-success h4 { color: #155724; margin-bottom: 8px; }
     .alert-success p { color: #155724; font-size: 12px; }
+    .alert-warning { background: #fdf0e3; border: 2px solid #C55A11; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+    .alert-warning h4 { color: #C55A11; margin-bottom: 8px; }
+    .alert-warning p { color: #7a3a0c; font-size: 12px; }
     .footer { text-align: center; padding: 20px; margin-top: 20px; background: #fff; border-radius: 12px; }
     .footer-main { font-size: 12px; color: #666; margin-bottom: 8px; }
     .footer-author { font-size: 11px; color: #1a3a5f; font-weight: 600; padding-top: 10px; border-top: 1px solid #eee; }
@@ -115,12 +119,12 @@
         <p>CT retornó a 144 µg/L en T4 tras el pico de 2,250 en T3. El retorno a valores basales descarta deterioro sostenido y confirma un pulso de masa desde la fuente upgradient (pozo de descarga histórico). El pozo muestrea agua no tratada por diseño (4.6 m al norte del perímetro de barrera).</p>
       </div>
       <div class="alert-success">
-        <h4>✅ ÉXITO: aPIMW04s - Mineralización sostenida</h4>
-        <p>CT no detectado o en límite de cuantificación por cuatro trimestres consecutivos (4.5 µg/L en T4); CF, CFC-11 y CFC-12 mayormente ND. Eficacia de la barrera ZVI confirmada y persistente desde el T1.</p>
+        <h4>✅ aPIMW04s — Mineralización validada LB→T3; primer breakthrough en T4</h4>
+        <p>Sostuvo mineralización completa de LB a T3 (todos los COVs no detectados). En T4 el CT reaparece a 4.5 µg/L (&gt; NG) sin ningún producto de degradación asociado. La hipótesis más consistente es un avance advectivo de CT no degradado a través de la zona ya pasivada (breakthrough incipiente), sincrónico con el repunte de CT en aPIMW03s upgradient — no una reactivación de fuente local ni degradación in situ.</p>
       </div>
-      <div class="alert-critical">
-        <h4>⚠ DIAGNÓSTICO T4: Pasivación generalizada</h4>
-        <p>ORP positivo en los 58 pozos de la red en T4 (mediana 152 mV), con trayectoria ascendente desde el T1 (29 mV). Condición oxidante en consolidación, consistente con cinética de pasivación en agua bicarbonatada. Limita la vida útil reactiva remanente de la barrera.</p>
+      <div class="alert-warning">
+        <h4>ℹ DIAGNÓSTICO T4: Atenuación del efecto reductor (pasivación)</h4>
+        <p>En el muestreo del T4, ORP positivo en los 18 pozos de la zona de influencia (mediana 154 mV), con trayectoria oxidante consolidándose desde el mínimo del T1 (14 mV). Compatible con pasivación de la superficie reactiva en matriz bicarbonatada; define el horizonte temporal efectivo del reactivo, no un fracaso operativo. El hierro disuelto uniforme (0.10 mg/L) queda [PENDIENTE QA/QC INDUSER] y se excluye del argumento de pasivación hasta su validación.</p>
       </div>
     </div>
 
@@ -165,7 +169,11 @@
       // Resultados Spearman precalculados
       spearman: {
         "aPIMW04p": { "CF": { rho: -1.0, pval: 0.0000, sig: true } },
-        "aPIMW05p": { "CFC12": { rho: -1.0, pval: 0.0000, sig: true } }
+        "aPIMW05p": { "CFC12": { rho: -1.0, pval: 0.0000, sig: true } },
+        "aPIMW02p": { "CF": { rho: -0.9, pval: 0.0374, sig: true } },
+        "aPIMW05s": { "DCE": { rho: -0.9, pval: 0.0374, sig: true }, "CFC11": { rho: -0.9, pval: 0.0374, sig: true } },
+        "D18": { "CF": { rho: 1.0, pval: 0.0000, sig: true }, "CFC11": { rho: 0.9, pval: 0.0374, sig: true } },
+        "PZ3": { "CF": { rho: 1.0, pval: 0.0000, sig: true } }
       },
       wells: {
         // POZOS BARRERA [LB, T1, T2, T3, T4]
@@ -207,7 +215,7 @@
       return { clase: "oxidante", label: "Oxidante", css: "oxidante" };
     }
 
-    // Cálculo de tendencia LB→T3
+    // Cálculo de tendencia LB→T4
     function calcTrend(values) {
       var first = values[0];
       var last = values[values.length - 1];
@@ -432,14 +440,17 @@
           html += '<div class="spearman-box"><div class="spearman-title">📊 Test Spearman (n=5)</div>';
           Object.keys(DATA.spearman[currentWell]).forEach(function(comp) {
             var sp = DATA.spearman[currentWell][comp];
-            html += '<div class="spearman-result sig">' + comp + ': ρ=' + sp.rho.toFixed(3) + ', p=' + sp.pval.toFixed(4) + ' → <strong>Tendencia significativa ↓</strong></div>';
+            var dir = sp.rho < 0 ? "↓" : "↑";
+            var cls = sp.rho < 0 ? "sig" : "sig up";
+            var txt = sp.rho < 0 ? "Tendencia significativa ↓" : "Ascenso significativo ↑ (atención)";
+            html += '<div class="spearman-result ' + cls + '">' + comp + ': ρ=' + sp.rho.toFixed(3) + ', p=' + sp.pval.toFixed(4) + ' → <strong>' + txt + '</strong></div>';
           });
           html += '</div>';
         }
         
         // Mensajes contextuales
         if (currentWell === "aPIMW04s") {
-          html += '<div class="success-box">✅ <strong>Mineralización sostenida.</strong> CT en límite de cuantificación y subproductos mayormente ND por cuatro trimestres. Eficacia de la barrera ZVI confirmada y persistente.</div>';
+          html += '<div class="warning-box">ℹ <strong>Breakthrough incipiente en T4.</strong> Mineralización completa de LB a T3; en T4 reaparece CT (4.5 µg/L) sin productos de degradación, compatible con avance advectivo de masa no degradada a través de la zona pasivada. La eficacia ISCR LB→T3 queda validada.</div>';
         } else if (currentWell === "aPIMW01s") {
           html += '<div class="success-box">✅ <strong>Pico del T3 resuelto.</strong> CT retornó a 144 µg/L en T4 (vs. 2,250 en T3), confirmando un pulso de masa desde la fuente upgradient y no un deterioro. Pozo upgradient: muestrea agua no tratada por diseño.</div>';
         } else if (currentWell === "aPIMW02s" || currentWell === "aPIMW03s") {
@@ -460,11 +471,15 @@
         html += '</div>';
         
         html += '<div class="info-box"><h4>ℹ️ Test Spearman (n=5)</h4><ul>';
-        html += '<li><strong>Significativos (p<0.05, |ρ|≥0.9):</strong></li>';
+        html += '<li><strong>Descensos significativos (p&lt;0.05, |ρ|≥0.9):</strong></li>';
         html += '<li>aPIMW04p: CF ↓ (ρ=-1.000)</li>';
         html += '<li>aPIMW05p: CFC-12 ↓ (ρ=-1.000)</li>';
-        html += '<li><strong>Nota T4:</strong> aPIMW03s pierde significancia por repunte en T4 (fuente activa)</li>';
-        html += '<li><strong>n=5:</strong> Test Spearman aplicable</li>';
+        html += '<li>aPIMW02p: CF ↓ (ρ=-0.900)</li>';
+        html += '<li>aPIMW05s: 1,1-DCE y CFC-11 ↓ (ρ=-0.900)</li>';
+        html += '<li><strong>Ascensos significativos (atención):</strong></li>';
+        html += '<li>D18: CF ↑ (ρ=+1.000), CFC-11 ↑ (ρ=+0.900)</li>';
+        html += '<li>PZ3: CF ↑ (ρ=+1.000) — supera NG en T4</li>';
+        html += '<li><strong>Nota T4:</strong> aPIMW03s pierde significancia por repunte (fuente activa)</li>';
         html += '</ul></div>';
       }
       
